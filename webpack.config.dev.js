@@ -2,6 +2,7 @@ const { getWebpackConfig } = require('grumbler-scripts/config/webpack.config');
 
 const devServerProxy = require('./utils/devServerProxy');
 const globals = require('./globals');
+const { localeOptions } = require('./locales');
 
 const FILE_NAME = 'sdk';
 const PROTOCOL = 'https';
@@ -49,6 +50,9 @@ module.exports = (env = {}) => {
     LIBRARY_DEV_CONFIG.devServer = {
         contentBase: './demo',
         publicPath: '/',
+        // set and export DEV_BROWSER in Terminal config to open that specific browser
+        // otherwise opens default browser if not set
+        open: process.env.DEV_BROWSER || true,
         openPage: (() => {
             switch (env.TARGET) {
                 case 'standalone':
@@ -61,7 +65,6 @@ module.exports = (env = {}) => {
         compress: true,
         host: 'localhost.paypal.com',
         port: PORT,
-        open: true,
         overlay: true,
         watchContentBase: true,
         injectClient: compiler => !!compiler.devServer,
@@ -84,7 +87,7 @@ module.exports = (env = {}) => {
         })
     });
 
-    COMPONENTS_DEV_CONFIG.entry = ['US', 'US-EZP', 'DE', 'GB'].reduce(
+    COMPONENTS_DEV_CONFIG.entry = [...localeOptions, 'US-EZP'].reduce(
         (accumulator, locale) => ({
             ...accumulator,
             [`smart-credit-modal-${locale}`]: `./src/components/modal/content/${locale}/index.js`

@@ -23,8 +23,10 @@ module.exports = {
         'zoid/src': 'zoid',
         'jsx-pragmatic/src': 'jsx-pragmatic',
         '@paypal/sdk-client/src': '@paypal/sdk-client',
+        '@paypal/sdk-constants/src': '@paypal/sdk-constants',
         'belter/src': 'belter'
     },
+    collectCoverageFrom: ['./src/**'],
     transform: {
         '^.+\\.jsx?$': 'babel-jest',
         '^.+\\.scss$': '<rootDir>/tests/unit/utils/sassLoader.js',

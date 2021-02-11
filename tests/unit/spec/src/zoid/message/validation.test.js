@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import validate from 'src/zoid/message/validation';
+import { localeOptions, currencyOptions } from '../../../../../../locales';
 
 console.warn = jest.fn();
 
@@ -8,7 +9,7 @@ describe('validate', () => {
         console.warn.mockClear();
     });
 
-    it('validates account', () => {
+    test('validates account', () => {
         const payerId = 'DEV00000000NI';
         const clientId = 'client-id:test_client_id';
 
@@ -50,7 +51,7 @@ describe('validate', () => {
         );
     });
 
-    it('validates merchantId', () => {
+    test('validates merchantId', () => {
         let merchantId = validate.merchantId({ props: { merchantId: 'DEV00000000NI' } });
 
         expect(merchantId).toEqual(merchantId);
@@ -80,7 +81,7 @@ describe('validate', () => {
         );
     });
 
-    it('validates amount', () => {
+    test('validates amount', () => {
         [10, 100000000, '100', '100.50'].forEach(validAmount => {
             const amount = validate.amount({ props: { amount: validAmount } });
 
@@ -107,7 +108,7 @@ describe('validate', () => {
         });
     });
 
-    it('validates offer', () => {
+    test('validates offer', () => {
         ['NI'].forEach(supportedOffer => {
             const offer = validate.offer({ props: { offer: supportedOffer } });
 
@@ -134,7 +135,7 @@ describe('validate', () => {
         });
     });
 
-    it('validates style', () => {
+    test('validates style', () => {
         const fallback = { layout: 'text' };
 
         [{ layout: 'text' }, { layout: 'flex', ratio: '1x1' }, { layout: 'text', badOption: 'abc' }].forEach(
@@ -178,8 +179,8 @@ describe('validate', () => {
         });
     });
 
-    it('validates currency', () => {
-        ['USD', 'EUR', 'GBP'].forEach(supportedCurrency => {
+    test('validates currency', () => {
+        currencyOptions.forEach(supportedCurrency => {
             const currency = validate.currency({ props: { currency: supportedCurrency } });
 
             expect(currency).toEqual(supportedCurrency);
@@ -205,7 +206,7 @@ describe('validate', () => {
         });
     });
 
-    it('validates placement', () => {
+    test('validates placement', () => {
         ['home', 'category', 'product', 'cart', 'payment'].forEach(supportedPlacement => {
             const placement = validate.placement({ props: { placement: supportedPlacement } });
 
@@ -232,8 +233,8 @@ describe('validate', () => {
         });
     });
 
-    it('validates buyerCountry', () => {
-        ['US', 'DE', 'GB'].forEach(supportedBuyerCountry => {
+    test('validates buyerCountry', () => {
+        localeOptions.forEach(supportedBuyerCountry => {
             const buyerCountry = validate.buyerCountry({ props: { buyerCountry: supportedBuyerCountry } });
 
             expect(buyerCountry).toEqual(supportedBuyerCountry);

@@ -1,16 +1,16 @@
 import validateStyle from '../../../../server/validateStyle';
 import { getValidOptions } from '../../../../server/locale';
 
-jest.mock('../../../../server/locale/GB/logos.js', () => ({
+jest.mock('../../../../server/message/logos.js', () => ({
     __esModule: true,
     default: {
-        PRIMARY: {
+        PP_PAYPAL: {
             COLOR: {},
             WHITE: {},
             GRAYSCALE: {},
             MONOCHROME: {}
         },
-        ALT_NO_PP: {
+        NO_PP_MONOGRAM: {
             COLOR: {},
             WHITE: {},
             GRAYSCALE: {},
@@ -32,7 +32,7 @@ describe('validateStyle', () => {
     const [, validLogoPositions] = VALID_STYLE_OPTIONS.text.logo.position;
 
     describe('Invalid style object values', () => {
-        it('Warns invalid style.layout type', () => {
+        test('Warns invalid style.layout type', () => {
             const layout = {};
             const validated = validateStyle(mockLogger, {
                 layout
@@ -42,7 +42,7 @@ describe('validateStyle', () => {
             expect(validated.layout).toBe('text');
         });
 
-        it('Warns invalid style.layout value', () => {
+        test('Warns invalid style.layout value', () => {
             const layout = 'invalid';
             const validated = validateStyle(mockLogger, {
                 layout
@@ -52,7 +52,7 @@ describe('validateStyle', () => {
             expect(validated.layout).toBe('text');
         });
 
-        it('Warns invalid values for style config', () => {
+        test('Warns invalid values for style config', () => {
             const logoType = 'invalid';
             const validated = validateStyle(mockLogger, {
                 layout: 'text',
