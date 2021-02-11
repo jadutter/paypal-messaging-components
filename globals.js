@@ -28,6 +28,7 @@ module.exports = (env = { TARGET: 'sdk' }) => ({
             __SANDBOX__: 'https://www.sandbox.paypal.com',
             __PRODUCTION__: 'https://www.paypal.com',
 
+            
             // Manual endpoint override example:
             // __MODAL__: {
             //     __LOCAL__: 'https://localhost.paypal.com:8443'
