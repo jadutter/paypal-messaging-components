@@ -200,12 +200,13 @@ export default createGlobalVariableGetter('__paypal_credit_modal__', () =>
                 value: ({ props, state, event }) => {
                     const { onReady } = props;
                     // Fired anytime we fetch new content (e.g. amount change)
-                    return ({ products, meta, deviceID }) => {
+                    return ({ views, products, meta, deviceID }) => {
                         const { index, offer, merchantId, account, refIndex } = props;
                         const { renderStart, show, hide } = state;
                         const { messageRequestId, trackingDetails, ppDebugId } = meta;
                         ppDebug(`Modal Correlation ID: ${ppDebugId}`);
 
+                        const productViews = typeof views === 'undefined' ? products : views;
                         logger.addMetaBuilder(existingMeta => {
                             // Remove potential existing meta info
                             // Necessary because beaver-logger will not override an existing meta key if these values change
@@ -246,7 +247,9 @@ export default createGlobalVariableGetter('__paypal_credit_modal__', () =>
                             refIndex,
                             et: 'CLIENT_IMPRESSION',
                             event_type: 'modal-render',
-                            modal: `${products.join('_').toLowerCase()}:${offer ? offer.toLowerCase() : products[0]}`,
+                            modal: `${productViews.join('_').toLowerCase()}:${
+                                offer ? offer.toLowerCase() : productViews[0]
+                            }`,
                             // For standalone modal the stats event does not run, so we duplicate some data here
                             bn_code: getScriptAttributes()[SDK_SETTINGS.PARTNER_ATTRIBUTION_ID],
                             first_modal_render_delay: Math.round(firstModalRenderDelay).toString(),
@@ -256,14 +259,14 @@ export default createGlobalVariableGetter('__paypal_credit_modal__', () =>
                             typeof onReady === 'function' &&
                             // No need to fire the merchant's onReady if the modal products haven't changed
                             // which could cause multiple click event handlers to be added
-                            (!state.products || JSON.stringify(products) !== JSON.stringify(state.products))
+                            (!state.products || JSON.stringify(productViews) !== JSON.stringify(state.products))
                         ) {
-                            onReady({ products, show, hide });
+                            onReady({ products: productViews, show, hide });
                         }
                         // Consumed in modal controller when validating the offer type passed in
                         // to determine if a modal is able to be displayed or not.
                         // Primary use-case is a standalone modal
-                        state.products = products; // eslint-disable-line no-param-reassign
+                        state.products = productViews; // eslint-disable-line no-param-reassign
                         event.trigger('ready');
                     };
                 }
