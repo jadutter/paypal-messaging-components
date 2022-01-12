@@ -228,13 +228,14 @@ export default createGlobalVariableGetter('__paypal_credit_message__', () =>
                             };
                         });
 
+                        modal.updateProps({ refIndex: index, offer: offerType });
+
                         runStats({
                             container: getContainer(),
                             activeTags,
                             requestDuration,
                             index
                         });
-                        modal.updateProps({ refIndex: index, offer: offerType });
 
                         logger.track({
                             index,

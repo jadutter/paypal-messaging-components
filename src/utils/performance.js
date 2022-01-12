@@ -24,7 +24,9 @@ export const PERFORMANCE_MEASURE_KEYS = {
     LOAD_EVENT_START: 'loadEventStart'
 };
 
-export function getRequestDuration() {
+export function getRequestMetrics() {
+    const isValidMetric = metric => typeof metric !== 'undefined';
+    // console.debug('getRequestDuration', window?.performance?.getEntries);
     if (typeof window?.performance?.getEntries !== 'function') {
         return -1;
     }
@@ -37,14 +39,92 @@ export function getRequestDuration() {
                 (entryType === 'resource' && `${name}`.indexOf('/credit-presentment/renderMessage') > -1)
         );
 
-    const [{ connectStart, responseStart }] = [...requests.slice(-1), {}];
+    const [request] = [...requests.slice(-1), {}];
+    return request;
+}
 
-    if (typeof connectStart !== 'undefined') {
-        // This measures the "Waiting (Time To First Byte)" for the request;
-        // how long we've spent waiting for a response after sending the request
-        return responseStart - connectStart;
+export async function getRequestDuration() {
+    window.request_durations = Array.isArray(window.request_durations) ? window.request_durations : [];
+    const isValidMetric = metric => typeof metric === 'number';
+    const getDuration = async (request, tries = 0) => {
+        const { connectStart, domInteractive, responseStart, requestStart, loadEventStart, loadEventEnd } = request;
+        // console.debug(
+        //     'request_duration',
+        //     JSON.stringify(
+        //         {
+        //             tries,
+        //             connectStart,
+        //             domInteractive,
+        //             responseStart,
+        //             requestStart,
+        //             loadEventStart,
+        //             request_duration: responseStart - requestStart
+        //         },
+        //         null,
+        //         '    '
+        //     ),
+        //     requests,
+        //     JSON.stringify(requests, null, '    ')
+        // );
+        return new Promise(resolve => {
+            if (isValidMetric(loadEventStart) && loadEventStart > 0) {
+                resolve(loadEventStart);
+                const obj = Object.entries(JSON.parse(JSON.stringify(request))).reduce((acc, [key, val]) => {
+                    if (typeof val !== 'number') {
+                        return acc;
+                    }
+                    return {
+                        ...acc,
+                        [key]: typeof val !== 'number' ? undefined : val
+                    };
+                }, {});
+                const values = Object.entries({ requestDuration: obj.responseStart - obj.requestStart, ...obj }).sort(
+                    ([, a], [, b]) => {
+                        if (a > b) {
+                            return 1;
+                        }
+
+                        if (a < b) {
+                            return -1;
+                        }
+                        return 0;
+                    }
+                );
+                console.debug(values.map(([key, value]) => `${key} = ${value}`).join('\n'));
+
+                return;
+            }
+            if (tries > 10) {
+                resolve(-1);
+                return;
+            }
+            setTimeout(() => {
+                resolve(getDuration(request, tries + 1));
+            }, 2000);
+            // if(isValidMetric(responseStart) && isValidMetric(requestStart) ) {
+            //     resolve(responseStart - requestStart)
+            // }
+        });
+    };
+    // console.debug('getRequestDuration', window?.performance?.getEntries);
+    if (typeof window?.performance?.getEntries !== 'function') {
+        return -1;
     }
-    return -1;
+    // eslint-disable-next-line compat/compat
+    const requests = window.performance
+        .getEntries()
+        .filter(
+            ({ name, entryType }) =>
+                (entryType === 'navigation' && `${name}`.indexOf('/credit-presentment/smart/message') > -1) ||
+                (entryType === 'resource' && `${name}`.indexOf('/credit-presentment/renderMessage') > -1)
+        );
+
+    // const [{ connectStart, domInteractive, responseStart, requestStart, loadEventStart }] = [...requests.slice(-1), {}];
+    const [request] = [...requests.slice(-1), {}];
+
+    const { connectStart, domInteractive, responseStart, requestStart, loadEventStart } = request;
+
+    return getDuration(request);
 }
 
 export function getPerformanceMeasure(name) {

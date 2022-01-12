@@ -64,9 +64,11 @@ export function runStats({ container, activeTags, index, requestDuration }) {
         getViewportIntersectionObserver().then(observer => observer.observe(container));
     }
 
-    checkAdblock().then(detected => {
+    checkAdblock().then(async detected => {
         payload.adblock = detected.toString();
         payload.blocked = isHidden(container).toString();
+        payload.request_duration = formatStat(await requestDuration);
+        console.debug('stats.payload', payload.request_duration, requestDuration);
         logger.track(payload); // TODO: , container.getAttribute('data-pp-message-hidden') === 'true');
     });
 }

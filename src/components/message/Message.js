@@ -8,7 +8,8 @@ import {
     createState,
     isStorageFresh,
     getDeviceID,
-    getRequestDuration
+    getRequestDuration,
+    getRequestMetrics
 } from '../../utils';
 
 const Message = function({ markup, meta, parentStyles, warnings }) {
@@ -83,6 +84,7 @@ const Message = function({ markup, meta, parentStyles, warnings }) {
         deviceID: isStorageFresh() ? parentDeviceID : getDeviceID(),
         requestDuration: getRequestDuration()
     });
+    // }, 1);
 
     onMarkup({ meta, styles: parentStyles, warnings });
 
